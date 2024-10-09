@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+
+<body>
+
+    <div class="container-fluid">
+
+        <div class="col-4">
+            {% if device_list %}
+            <ul class="nav bg-info">
+                {% for device in device_list %}
+                <li class="nav-item">
+                    {% if device.state %}
+                    <button type="button" id="{{ device.name }}" name="{{ device.name }}" class="btn btn-warning" onclick="updateStateIndicator(this)">{{ device.display_name }}</button>
+                    {% else %}
+                    <button type="button" id="{{ device.name }}" name="{{ device.name }}" class="btn btn-secondary" onclick="updateStateIndicator(this)">{{ device.display_name }}</button>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No devices are available.</p>
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function updateStateIndicator(e) {
+            console.log(`triggered`)
+            console.log(e.id)
+            $.ajax({
+                url: "{% url 'set_get_state' %}",
+                method: "GET",
+                data: {device: e.name},
+                success: function(response) {
+                    console.log(response)
+                    console.log(response.state)
+                    if(response.state) {
+                        console.log("It's true then!!!!")
+                        $(`#${e.id}`).removeClass('btn-secondary')
+                        $(`#${e.id}`).addClass('btn-warning')
+                    } else {
+                        console.log("It's false then!!!!")
+                        $(`#${e.id}`).removeClass('btn-warning')
+                        $(`#${e.id}`).addClass('btn-secondary')
+                    }
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.log('AJAX Error:', status, error);
+                    $('#state-indicator').text('Error');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
