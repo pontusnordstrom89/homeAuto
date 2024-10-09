@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
+    "channels",
     "deviceControl.apps.DevicecontrolConfig",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -70,6 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'homeAuto.wsgi.application'
+ASGI_APPLICATION = 'homeAuto.asgi.application'
 
 
 # Database

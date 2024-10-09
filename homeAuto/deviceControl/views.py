@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from django.http import JsonResponse
@@ -25,20 +26,10 @@ def index(request):
     }
     return HttpResponse(template.render(context, request))
 
-def set_get_state_indicator(request):
-    
-    print("we're in!!!!")
-    if request.method == 'GET':
-        # Access the query parameters
-        device = request.GET.get('device') 
-        print(device)
 
-        mqtt_client.publish(f'cmnd/{device}/POWER', 'TOGGLE')
-        
-        # Simulating a state (You can retrieve this from the database or any other logic)
-        state = {'state': True}  # This could be 'offline', 'busy', etc.
+def lobby(request):
+    return render(request, "deviceControl/lobby.html")
 
-    return JsonResponse(state)
-    
-    
 
+def room(request, room_name):
+    return render(request, "deviceControl/socketTest.html", {"room_name": room_name})

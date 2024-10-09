@@ -6,6 +6,7 @@
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -18,9 +19,9 @@
                 {% for device in device_list %}
                 <li class="nav-item">
                     {% if device.state %}
-                    <button type="button" id="{{ device.name }}" name="{{ device.name }}" class="btn btn-warning" onclick="updateStateIndicator(this)">{{ device.display_name }}</button>
+                    <button type="button" id="{{ device.name }}" name="{{ device.name }}" class="btn btn-warning">{{ device.display_name }}</button>
                     {% else %}
-                    <button type="button" id="{{ device.name }}" name="{{ device.name }}" class="btn btn-secondary" onclick="updateStateIndicator(this)">{{ device.display_name }}</button>
+                    <button type="button" id="{{ device.name }}" name="{{ device.name }}" class="btn btn-secondary">{{ device.display_name }}</button>
                     {% endif %}
                 </li>
                 {% endfor %}
@@ -35,37 +36,48 @@
     </div>
 
 
-
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function updateStateIndicator(e) {
-            console.log(`triggered`)
-            console.log(e.id)
-            $.ajax({
-                url: "{% url 'set_get_state' %}",
-                method: "GET",
-                data: {device: e.name},
-                success: function(response) {
-                    console.log(response)
-                    console.log(response.state)
-                    if(response.state) {
-                        console.log("It's true then!!!!")
-                        $(`#${e.id}`).removeClass('btn-secondary')
-                        $(`#${e.id}`).addClass('btn-warning')
-                    } else {
-                        console.log("It's false then!!!!")
-                        $(`#${e.id}`).removeClass('btn-warning')
-                        $(`#${e.id}`).addClass('btn-secondary')
-                    }
-                    
-                },
-                error: function(xhr, status, error) {
-                    console.log('AJAX Error:', status, error);
-                    $('#state-indicator').text('Error');
-                }
-            });
-        }
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/deviceControl/'
+        );
+
+
+        // Toggle button
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            console.log("WE GOT A RESPONSE!!!")
+            console.log(data.id)
+
+            if (data.state) {
+                console.log("It's true then!!!!")
+                $(`#${data.id}`).removeClass('btn-secondary')
+                $(`#${data.id}`).addClass('btn-warning')
+            } else {
+                console.log("It's false then!!!!")
+                $(`#${data.id}`).removeClass('btn-warning')
+                $(`#${data.id}`).addClass('btn-secondary')
+            }
+
+        };
+
+        chatSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        
+        $( 'button' ).on( "click", function(e) {
+            console.log("BUTTON CLICKED")
+            console.log(`ButtonID: ${e.target.id}`)
+            chatSocket.send(JSON.stringify({
+                'id': e.target.id
+            }));
+        });
+        
     </script>
+    
 </body>
+
 </html>
