@@ -14,7 +14,7 @@ def publish_message(request):
     rc, mid = mqtt_client.publish(request_data['topic'], request_data['msg'])
     return JsonResponse({'code': rc})
 
-def index(request):
+def index(request, room_name):
     # Subscribe to all topics and update status
     subscribe()
 
@@ -23,13 +23,7 @@ def index(request):
     template = loader.get_template("deviceControl/index.html")
     context = {
         "device_list": device_list,
+        "room_name": room_name
     }
     return HttpResponse(template.render(context, request))
 
-
-def lobby(request):
-    return render(request, "deviceControl/lobby.html")
-
-
-def room(request, room_name):
-    return render(request, "deviceControl/socketTest.html", {"room_name": room_name})

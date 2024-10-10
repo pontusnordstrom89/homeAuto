@@ -34,50 +34,53 @@
             {% endblock %}
         </div>
     </div>
-
-
+    {{ room_name|json_script:"room-name" }}
     <script>
-
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        console.log(roomName)
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
             + '/ws/deviceControl/'
+            + roomName
+            + '/'
         );
 
+        console.log(chatSocket.url)
 
-        // Toggle button
-        chatSocket.onmessage = function (e) {
+        chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            console.log("WE GOT A RESPONSE!!!")
-            console.log(data.id)
+            console.log("recieved message")
+            console.log(data)
+            console.log(data.message.state)
+            
 
-            if (data.state) {
-                console.log("It's true then!!!!")
-                $(`#${data.id}`).removeClass('btn-secondary')
-                $(`#${data.id}`).addClass('btn-warning')
+            if(data.message.state) {
+                console.log('Its trueeeee')
+                $(`#${data.message.id}`).removeClass( "btn-secondary" ).addClass( "btn-warning" );
+                
             } else {
-                console.log("It's false then!!!!")
-                $(`#${data.id}`).removeClass('btn-warning')
-                $(`#${data.id}`).addClass('btn-secondary')
+                console.log('Its false')
+                $(`#${data.message.id}`).removeClass( "btn-warning" ).addClass( "btn-secondary" );
             }
-
+            
         };
 
-        chatSocket.onclose = function (e) {
+        chatSocket.onclose = function(e) {
             console.error('Chat socket closed unexpectedly');
         };
 
-        
-        $( 'button' ).on( "click", function(e) {
-            console.log("BUTTON CLICKED")
-            console.log(`ButtonID: ${e.target.id}`)
+        $('button').on('click', function(e) {
+            console.log(`ButtonID on click = ${e.target.id}`)
+
             chatSocket.send(JSON.stringify({
-                'id': e.target.id
+                'message': {
+                    'type': 'sonoff',
+                    'deviceId': e.target.id
+                } 
             }));
-        });
-        
+        })
     </script>
-    
 </body>
 
 </html>

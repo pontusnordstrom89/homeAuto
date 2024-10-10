@@ -34,16 +34,17 @@ def on_message(mqtt_client, userdata, msg):
     topic_breakdown = msg.topic.split("/")
     print(topic_breakdown[1])
 
-    #SendUpdate on socket
-    from . import consumers
-    action_consumer = consumers.ActionConsumer()
+   
     data = {
+         "type": 'toggle',
          "state": device_status,
          "id": topic_breakdown[1]
     }
     print("Before sending")
-    action_consumer.broadcast(deviceStatus = data)
 
+    from .consumers import StateConsumer
+    cc = StateConsumer()
+    cc.send_message(data)
     # Toggle devicestatus front end
     from .models import Device
     Device.objects.filter(name=topic_breakdown[1]).update(state = device_status)

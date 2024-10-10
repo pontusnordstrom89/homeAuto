@@ -1,32 +1,59 @@
-# deviceControl/consumers.py
+# chat/consumers.py
 import json
 
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
+import channels.layers
+from asgiref.sync import async_to_sync
 from deviceControl.mqtt import client as mqtt_client
 
-class ActionConsumer(WebsocketConsumer):
-    def connect(self):
-        self.accept()
+class StateConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        self.room_group_name = f"chat_{self.room_name}"
+        print(f"GoupNAME: {self.room_group_name}")
+        print(f"ChannelName: {self.channel_name}")
+        # Join room group
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
-    def disconnect(self, close_code):
-        pass
+        await self.accept()
 
-    def receive(self, text_data):
+    async def disconnect(self, close_code):
+        # Leave room group
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+    # Receive message from WebSocket
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        id = text_data_json["id"]
-        print(f"buttonID: {id}")
+        message = text_data_json["message"]
 
-        response = {
-            "id": id,
-            "state": True
-        }
+        if message["type"] == 'sonoff':
+            # Toggle lamp in mqtt
+            mqtt_client.publish(f'cmnd/{message["deviceId"]}/POWER', 'TOGGLE')
+            message = 'toggle'
+             # Send message to room group
+            await self.channel_layer.group_send(
+                self.room_group_name, {"type": "chat.message", "message": message}
+            )
+        else:
+            message = "No Action"
+            # Send message to room group
+            await self.channel_layer.group_send(
+                self.room_group_name, {"type": "chat.message", "message": message}
+            )
 
-        mqtt_client.publish(f'cmnd/{id}/POWER', 'TOGGLE')
+    # Receive message from room group
+    async def chat_message(self, event):
+        message = event["message"]
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({"message": message}))
 
-        self.send(text_data=json.dumps(response))
+    def send_message(self, message):
+        print(f"MESSAGE IN CONSUMER: {message}")
+        #channel_layer = channels.layers.get_channel_layer()
+        #async_to_sync(channel_layer.send)('control', {'type': 'hello from code'})
 
-    def broadcast(self, deviceStatus):
-        print("trying to send")
-        self.base_send = [r"ws/deviceControl/", self.as_asgi()]
-        self.send(text_data=json.dumps({"message": "message"}))
-    
+        # Get the channel layer
+        channel_layer = channels.layers.get_channel_layer()
+
+        # Trigger a message to the group 'updates_group'
+        async_to_sync(channel_layer.group_send)('chat_control', {'type': 'chat_message', 'message': message})
