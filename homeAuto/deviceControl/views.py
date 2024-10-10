@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.http import JsonResponse
 from deviceControl.mqtt import client as mqtt_client
-from .models import Device
+from .models import Device, Room
 from .mqtt import subscribe
 import json
 
@@ -20,10 +20,11 @@ def index(request, room_name):
 
     # List all devices
     device_list = Device.objects.all()
-    template = loader.get_template("deviceControl/index.html")
+    room = Room.objects.all()
+    template = loader.get_template("deviceControl/deviceControl.html")
     context = {
+        "rooms": room,
         "device_list": device_list,
         "room_name": room_name
     }
     return HttpResponse(template.render(context, request))
-

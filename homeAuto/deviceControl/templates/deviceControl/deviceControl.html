@@ -3,6 +3,7 @@
 
 <head>
     <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
@@ -10,25 +11,32 @@
 </head>
 
 <body>
-
+    
     <div class="container-fluid">
+        {% if rooms %}
+        <div class="col-md-6 m-2">
+            {% for room in rooms %}
+            <div class="col-12">
+                <h3>{{ room.display_name }}</h3>
+            </div>
 
-        <div class="col-4">
-            {% if device_list %}
-            <ul class="nav bg-info">
+            <div class="col-12 border-bottom p-2">
                 {% for device in device_list %}
-                <li class="nav-item">
+                    {% if device.room == room %}
                     {% if device.state %}
                     <button type="button" id="{{ device.name }}" name="{{ device.name }}" class="btn btn-warning">{{ device.display_name }}</button>
                     {% else %}
                     <button type="button" id="{{ device.name }}" name="{{ device.name }}" class="btn btn-secondary">{{ device.display_name }}</button>
                     {% endif %}
-                </li>
+                {% endif %}
                 {% endfor %}
-            </ul>
-            {% else %}
-            <p>No devices are available.</p>
-            {% endif %}
+
+            </div>
+            {% endfor %}
+        </div>
+          {% else %}
+          <p>No rooms available.</p>
+          {% endif %}
 
             {% block content %}
             {% endblock %}

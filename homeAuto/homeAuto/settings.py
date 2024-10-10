@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-z-qcv$(89w0+!ok&wn#b5*ivwi4@ycsw^fv!frkh$0r=txxvb$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.10.228']
 
 
 # Application definition
@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "daphne",
     "channels",
+    "app.apps.AppConfig",
     "deviceControl.apps.DevicecontrolConfig",
     'django.contrib.admin',
     'django.contrib.auth',
