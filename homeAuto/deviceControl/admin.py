@@ -1,14 +1,18 @@
 from django.contrib import admin
-
+from django.db.models.functions import Lower
 # Register your models here.
 from .models import Device, DeviceType, Location, Room
 
 
 
+
 class DeviceAdmin(admin.ModelAdmin):
     #fields = ["display_name", "ip", "type", "room"]
-    list_display = ["room", "display_name", "ip", "type"]
+    list_display = ["display_name", "room",  "ip", "type"]
     search_fields = ["display_name"]
+
+    def get_ordering(self, request):
+        return [Lower('room')]  # sort case insensitive
 
 class DeviceTypeAdmin(admin.ModelAdmin):
     #fields = ["display_name", "ip", "type", "room"]
