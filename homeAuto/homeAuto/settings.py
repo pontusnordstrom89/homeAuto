@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "channels",
     "app.apps.AppConfig",
     "deviceControl.apps.DevicecontrolConfig",
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -114,6 +115,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -137,8 +146,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MQTT_SERVER = '192.168.10.247'
+#MQTT_SERVER = '192.168.10.247'
+MQTT_SERVER = '192.168.10.126'
 MQTT_PORT = 1883
 MQTT_KEEPALIVE = 60
 MQTT_USER = 'iot_king'
 MQTT_PASSWORD = 'Zp81G35!'
+
+FIRST_LAUNCH = True
