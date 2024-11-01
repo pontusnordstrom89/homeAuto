@@ -44,8 +44,12 @@
     </div>
     {{ room_name|json_script:"room-name" }}
     <script>
+
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
         console.log(roomName)
+
+
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -78,8 +82,15 @@
             console.error('Chat socket closed unexpectedly');
         };
 
+        function isWebSocketOpen(webSocket) {
+            return webSocket.readyState === WebSocket.OPEN;
+        }
+
         $('button').on('click', function(e) {
             console.log(`ButtonID on click = ${e.target.id}`)
+            
+
+            // Before send, check if socket is open
 
             chatSocket.send(JSON.stringify({
                 'message': {
@@ -88,6 +99,38 @@
                 } 
             }));
         })
+
+
+        document.addEventListener("visibilitychange", () => {
+            
+            const d = new Date();
+            let time = d.getTime();
+            if(document.visibilityState === 'visible') {
+
+                var connectionOpen = isWebSocketOpen(chatSocket);
+                console.log(`Visible ${time}: Is connection open?? ${connectionOpen}`)
+
+                if(!connectionOpen) {
+                    console.log("Connection closed, must re-connect");
+                    location.reload();
+                }
+
+
+            } else {
+                console.log(`Not visible. Time is ${time}`);
+            }
+        })
+
+        /*
+        window.addEventListener("focus", () => {
+            console.log("Window in FOCUS!!!!");
+        })
+
+        window.addEventListener("focus", () => {
+            console.log("Window out of focus");
+        })
+            */
+
     </script>
 </body>
 
