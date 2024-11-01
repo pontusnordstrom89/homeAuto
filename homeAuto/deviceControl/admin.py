@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db.models.functions import Lower
 # Register your models here.
-from .models import Device, DeviceType, Location, Room
+from .models import Device, DeviceType, Location, Room, DeviceGroup, DeviceScenario
 
 
 
@@ -29,8 +29,21 @@ class RoomAdmin(admin.ModelAdmin):
     list_display = ["id", "display_name"]
     search_fields = ["display_name"]
 
+class DeviceGroupAdmin(admin.ModelAdmin):
+    #fields = ["display_name", "ip", "type", "room"]
+    list_display = ["id", "display_name"]
+    search_fields = ["display_name"]
+
+class DeviceScenarioAdmin(admin.ModelAdmin):
+    #fields = ["display_name", "ip", "type", "room"]
+    list_display = ["id", "display_name"]
+    search_fields = ["display_name"]
+
+
 
 admin.site.register(Device, DeviceAdmin)
 admin.site.register(DeviceType, DeviceTypeAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Room, RoomAdmin)
+admin.site.register(DeviceGroup, DeviceGroupAdmin)
+admin.site.register(DeviceScenario, DeviceScenarioAdmin)
